@@ -13,7 +13,8 @@ def clustering(bacteria):
 
     # Calculate the offsets (minimum values to shift positions into positive coordinates)
     offset_x = -np.min(positions[:, 0]) 
-    offset_y = -np.min(positions[:, 1]) 
+    offset_y = np.min(positions[:, 1]) 
+    print(offset_y, "OFFSETT Y")
 
     # Shift all bacteria positions
     shifted_positions = positions + np.array([offset_x, offset_y])
@@ -44,10 +45,10 @@ def clustering(bacteria):
         centroids[cluster_id] = centroid
 
 
-    # Invert the Y-values for both the centroids and shifted positions
-    shifted_positions[:, 1] = -shifted_positions[:, 1]  # Invert Y values of shifted positions
+    #Invert the Y-values for both the centroids and shifted positions
+    shifted_positions[:, 1] = -shifted_positions[:, 1]  
     for cluster_id, centroid in centroids.items():
-        centroid[1] = -centroid[1]  # Invert Y values of centroids
+        centroid[1] = -centroid[1]  
 
     return centroids, shifted_positions, labels
 
@@ -73,7 +74,7 @@ def graph_distance_between_centroids(centroids, positions, labels, pairs, color_
     plt.ylabel('Y (µm)')
     plt.title(f'DBSCAN Clustering of {color_expression}-Positive Bacteria with Centroids and Lines (µm)')
     plt.legend()
-    plt.savefig(f"{path}/{color_expression}_in_micrometers.png")
+    plt.savefig(f"{path}/{color_expression}_in_micrometers.png", transparent=True)
     plt.show()
 
 
