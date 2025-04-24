@@ -11,8 +11,15 @@ def clustering(bacteria):
     # Extracting the spatial positions (x, y) as features for clustering, and converting to micrometers
     positions = np.array([[float(bacterium[1]) / 10, float(bacterium[2]) / 10] for bacterium in bacteria])
 
+    # Calculate the offsets (minimum values to shift positions into positive coordinates)
+    offset_x = -np.min(positions[:, 0]) 
+    offset_y = -np.min(positions[:, 1]) 
+
+    # Shift all bacteria positions
+    shifted_positions = positions + np.array([offset_x, offset_y])
+
     # DBSCAN clustering
-    db = DBSCAN(eps=5, min_samples=2).fit(positions)  # Adjusted eps for micrometers
+    db = DBSCAN(eps=5, min_samples=2).fit(shifted_positions)  # Adjusted eps for micrometers
 
     # Get cluster labels
     labels = db.labels_
@@ -26,7 +33,8 @@ def clustering(bacteria):
     for label, bacterium in zip(labels, bacteria):
         if label not in clusters:
             clusters[label] = []
-        clusters[label].append([float(bacterium[1]) / 10, float(bacterium[2]) / 10])  # Convert to micrometers
+        # Convert to micrometers and use shifted positions for clustering
+        clusters[label].append([float(bacterium[1]) / 10 + offset_x, float(bacterium[2]) / 10 + offset_y])
 
     # Calculate the centroid of each cluster
     centroids = {}
@@ -35,20 +43,19 @@ def clustering(bacteria):
         centroid = cluster_positions.mean(axis=0)  # Calculate the centroid
         centroids[cluster_id] = centroid
 
-    centroids_array = np.array(list(centroids.values()))
-    return centroids_array, positions, labels
+
+    # Invert the Y-values for both the centroids and shifted positions
+    shifted_positions[:, 1] = -shifted_positions[:, 1]  # Invert Y values of shifted positions
+    for cluster_id, centroid in centroids.items():
+        centroid[1] = -centroid[1]  # Invert Y values of centroids
+
+    return centroids, shifted_positions, labels
 
 
 def graph_distance_between_centroids(centroids, positions, labels, pairs, color_expression):
     #Print the centroids
-    #save centroids in a file
-    # with open(path+f"centroids_{color_expression}.txt", mode='w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerow(['x','y'])
-    #     writer.writerows(centroids_points)
-
-    # Plot the clusters with centroids and Y-axis inverted
-    plt.scatter(positions[:, 0], positions[:, 1], c=labels, cmap='viridis', label='Bacteria (µm)')
+    plt.scatter(positions[:, 0], positions[:, 1], c=labels, cmap='viridis', label='Bacteria')
+    print(centroids, "centroids")
     for cluster_id, centroid in centroids.items():
         plt.scatter(centroid[0], centroid[1], s=200, c='red', marker='X', label=f'Centroid {cluster_id}')
         plt.text(centroid[0], centroid[1], f'Centroid {cluster_id}', fontsize=12, color='red')
@@ -62,28 +69,14 @@ def graph_distance_between_centroids(centroids, positions, labels, pairs, color_
             distance = euclidean(centroid_1, centroid_2)
             plt.text((centroid_1[0] + centroid_2[0]) / 2, (centroid_1[1] + centroid_2[1]) / 2, 
                     f'{distance:.2f} µm', fontsize=12, color='blue', ha='center')  # Distance in micrometers
-
     plt.xlabel('X (µm)')
     plt.ylabel('Y (µm)')
     plt.title(f'DBSCAN Clustering of {color_expression}-Positive Bacteria with Centroids and Lines (µm)')
     plt.legend()
-    plt.gca().invert_yaxis()
-    plt.savefig(color_expression + '_in_micrometers.png')
+    plt.savefig(f"{path}/{color_expression}_in_micrometers.png")
     plt.show()
 
 
-
-    # # Print the centroids
-    # centroids_points = []
-    # print("\nCentroids of Clusters (in micrometers):")
-    # for cluster_id, centroid in centroids.items():
-    #     print(f"Cluster {cluster_id} Centroid: {centroid[0]} {centroid[1]} µm")
-    #     centroids_points.append([float(centroid[0]),float(centroid[1])])
-
-    # print("ARRAY",centroids_points)
-
-
-#arr is a list of bacteria separed by color
 def voronoi(arrs, bacteria_points, filename, colors, labels): 
     allpoints = []
     for arr in arrs:
@@ -91,76 +84,25 @@ def voronoi(arrs, bacteria_points, filename, colors, labels):
     points = np.array(allpoints)
     vor = Voronoi(points)
 
-    fig = voronoi_plot_2d(vor)
-    
+    fig = voronoi_plot_2d(vor, point_size=6)
+    # add to the fig the label of the points to say the blue is the voronoi points
+    plt.scatter([], [], c='blue', marker='o', label='Voronoi points')
+    # add a unity of messure for the axis
+    plt.xlabel('X (µm)')
+    plt.ylabel('Y (µm)')
+    plt.title('Voronoi Diagram of Bacteria Clusters (µm)')
     for bacteria, color, label in zip(bacteria_points, colors, labels):
         # Add bacteria points
         sub_bacteria_points = np.array(bacteria)
         plt.scatter(sub_bacteria_points[:, 0], sub_bacteria_points[:, 1], c=color, marker='o', label=label)
         plt.legend()
-    
+
     plt.savefig(filename, transparent=True)
     plt.show()
 
-def graph_clustering():
-    bacterias_time = []
-    # id	 x	 y	 theta	 volume	 gfp	 rfp	 yfp	 cfp
-    with open('data/conteos.csv', newline='') as csvfile:
-        spamreader = csv.reader(csvfile)
-        first_row = next(spamreader)  # Read the first row (header)
-        bacteria_actual_group = []
-        for row in spamreader:
-            if(row[0] == "id"):
-                bacterias_time.append(bacteria_actual_group)
-                bacteria_actual_group = []
-            else:
-                bacteria_actual_group.append(row)
-        print("Number of times periods", len(bacterias_time))
-        #print(bacterias_time[0])
 
-    # LOOK IN TIME 1 FOR BACTERIAS GFP
-    bacteria_gfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[5]) > 0]
-    bacteria_rfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[6]) > 0]
-    bacteria_yfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[7]) > 0]
-
-    # Define the relationship between centroids to draw lines between them and calculate distances.
-    # (a, b) represents a line between centroid a and centroid b.
-    pairs_g = [
-        (4, 2), (4, 3), (3, 2), (3, 6), (3, 5), (2, 1),
-        (2, 5), (5, 6), (1, 5), (5, 0), (5, 1), (1, 0)  
-    ]
-
-    pairs_r = [
-        (3, 2), (3, 4), (3, 0), 
-        (2, 0), 
-        (0, 4), (0, 1),
-        (1, 4)
-    ]
-
-    pairs_y = [
-        (4, 3), (4, 5), (4, 0), (3, 5), (3, 2), (5, 0),
-        (5, 2), (2, 0), (0, 1)  
-    ]
-
-    clustering(bacteria_gfp, pairs_g, "GFP")
-    clustering(bacteria_rfp, pairs_r,  "RFP")
-    clustering(bacteria_yfp, pairs_y,  "YFP")
-
-def graph_voronoi(centroids):
-    color_expression = ["GFP", "RFP", "YFP"]
-    for color in color_expression:
-        with open(path+f"centroids_{color}.txt", newline='') as csvfile: 
-            spamreader = csv.reader(csvfile)
-            first_row = next(spamreader)
-            print(first_row)
-            centroids = []
-            for row in spamreader:
-                centroids.append([float(row[0]), float(row[1])])
-            voronoi(centroids, path+ f"voronoi_{color}.png")
-
-
-
-
+# Global variables
+# Arrays that represent the relation between centroids, they are used to calculate distance between centroids
 pairs_g = [
     (4, 2), (4, 3), (3, 2), (3, 6), (3, 5), (2, 1),
     (2, 5), (5, 6), (1, 5), (5, 0), (5, 1), (1, 0)  
@@ -178,7 +120,6 @@ pairs_y = [
     (5, 2), (2, 0), (0, 1)  
 ]
 
-
 def main():
     bacterias_time = []
     # id	 x	 y	 theta	 volume	 gfp	 rfp	 yfp	 cfp
@@ -193,32 +134,30 @@ def main():
             else:
                 bacteria_actual_group.append(row)
         print("Number of times periods", len(bacterias_time))
-        #print(bacterias_time[0])
 
-    # LOOK IN TIME 1 FOR BACTERIAS GFP
+    # Obtain bacteria in a specific time (i.e 1500)
     bacteria_gfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[5]) > 0]
     bacteria_rfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[6]) > 0]
     bacteria_yfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[7]) > 0]
 
-
-
-    #graph_clustering()
+    # Clustering process
     centroids_gfp, positions_gfp, labels_gfp = clustering(bacteria_gfp)
     centroids_rfp, positions_rfp, labels_rfp = clustering(bacteria_rfp)
     centroids_yfp, positions_yfp, labels_yfp = clustering(bacteria_yfp)
-    
-    # GRAPHING DISTANCE BETWEEN CENTROIDS
-    #graph_distance_between_centroids(centroids_gfp, positions_gfp, labels_gfp, pairs_g, "GFP")
-    #graph_distance_between_centroids(centroids_rfp, positions_rfp, labels_rfp, pairs_r, "RFP")
-    #graph_distance_between_centroids(centroids_yfp, positions_yfp, labels_yfp, pairs_y, "YFP")
 
-    # GRAPHING VORONOI DIAGRAMS WITH BACTERIA
-    #voronoi(centroids_gfp, positions_gfp, path+f"voronoi_GFP.png", "green")
-    #voronoi(centroids_rfp, positions_rfp, path+f"voronoi_RFP.png","red")
-    #voronoi(centroids_yfp, positions_yfp, path+f"voronoi_YFP.png","darkorange")
-    # all points
+    # GRAPHING DISTANCE BETWEEN CENTROIDS
+    graph_distance_between_centroids(centroids_gfp, positions_gfp, labels_gfp, pairs_g, "GFP")
+    graph_distance_between_centroids(centroids_rfp, positions_rfp, labels_rfp, pairs_r, "RFP")
+    graph_distance_between_centroids(centroids_yfp, positions_yfp, labels_yfp, pairs_y, "YFP")
+
+    # Convert Dictionary to array
+    centroids_array_grp = np.array(list(centroids_gfp.values()))
+    centroids_array_rfp = np.array(list(centroids_rfp.values()))
+    centroids_array_yfp = np.array(list(centroids_yfp.values()))
+
+    # all points with voronoi
     voronoi(
-        [centroids_gfp, centroids_rfp, centroids_yfp], 
+        [centroids_array_grp, centroids_array_rfp, centroids_array_yfp], 
         [positions_gfp, positions_rfp, positions_yfp], 
         path+f"voronoi_all.png", 
         ["green", "red", "darkorange"],
@@ -226,4 +165,5 @@ def main():
     )
     
 
-main()
+if __name__ == "__main__":
+    main()
