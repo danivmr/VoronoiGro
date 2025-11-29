@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import csv 
 from scipy.spatial.distance import euclidean
 from scipy.spatial import Voronoi, voronoi_plot_2d
+from shapely.geometry import Polygon, Point
+from matplotlib.patches import Polygon as MplPolygon
+from matplotlib.collections import PatchCollection
 
 path = "results/"
 
@@ -102,6 +105,78 @@ def voronoi(arrs, bacteria_points, filename, colors, labels):
     plt.show()
 
 
+def construct_voronoi_polygons(vor):
+    polygons = []
+    for region_idx in vor.point_region:
+        vertices = vor.regions[region_idx]
+        if -1 in vertices or len(vertices) == 0:
+            polygons.append(None)
+            continue
+        polygon = Polygon([vor.vertices[i] for i in vertices])
+        polygons.append(polygon)
+    return polygons
+
+def validate_bacteria_in_voronoi(bacteria_positions, cluster_labels, polygons):
+    correct = 0
+    total = len(bacteria_positions)
+    for position, label in zip(bacteria_positions, cluster_labels):
+        if label == -1:
+            continue
+        point = Point(position)
+        polygon = polygons[label]
+        if polygon is not None and polygon.contains(point):
+            correct += 1
+    return correct / total
+
+def obtain_score(centroids, bacteria_positions):
+    vor = Voronoi(centroids)
+
+    polygons = []
+    for region_idx in vor.point_region:
+        region = vor.regions[region_idx]
+        if not -1 in region and region:  # Ignore regions with point at infinity
+            polygon = Polygon([vor.vertices[i] for i in region])
+            polygons.append(polygon)
+
+    inside_count = 0
+    inside_points = []
+    outside_points = []
+
+    for x, y in bacteria_positions:
+        point = Point(x, y)
+        if any(polygon.contains(point) for polygon in polygons):
+            print(point, "point is inside--")
+            inside_count += 1
+            inside_points.append((x, y))
+        else:
+            outside_points.append((x, y))
+
+    percentage = (inside_count / len(bacteria_positions)) * 100
+    print(f"{percentage:.2f}% points are inside the polygons")
+
+    # --- Plotting Section ---
+    fig, ax = plt.subplots()
+
+    # Plot polygons
+    patches = []
+    for poly in polygons:
+        if not poly.is_empty:
+            patches.append(MplPolygon(list(poly.exterior.coords), closed=True))
+    p = PatchCollection(patches, facecolor='lightblue', edgecolor='black', alpha=0.5)
+    ax.add_collection(p)
+
+    # Plot points
+    if inside_points:
+        inside_points = list(zip(*inside_points))
+        ax.scatter(inside_points[0], inside_points[1], color='green', label='Inside Points')
+
+    if outside_points:
+        outside_points = list(zip(*outside_points))
+        ax.scatter(outside_points[0], outside_points[1], color='red', label='Outside Points')
+
+    ax.set_aspect('equal')
+    ax.legend()
+    plt.show()
 # Global variables
 # Arrays that represent the relation between centroids, they are used to calculate distance between centroids
 pairs_g = [
@@ -124,7 +199,7 @@ pairs_y = [
 def main():
     bacterias_time = []
     # id	 x	 y	 theta	 volume	 gfp	 rfp	 yfp	 cfp
-    with open('data/conteos.csv', newline='') as csvfile:
+    with open('data/records_voronoi.csv', newline='') as csvfile:
         spamreader = csv.reader(csvfile)
         first_row = next(spamreader)  # Read the first row (header)
         bacteria_actual_group = []
@@ -147,23 +222,29 @@ def main():
     centroids_yfp, positions_yfp, labels_yfp = clustering(bacteria_yfp)
 
     # GRAPHING DISTANCE BETWEEN CENTROIDS
-    graph_distance_between_centroids(centroids_gfp, positions_gfp, labels_gfp, pairs_g, "GFP")
-    graph_distance_between_centroids(centroids_rfp, positions_rfp, labels_rfp, pairs_r, "RFP")
-    graph_distance_between_centroids(centroids_yfp, positions_yfp, labels_yfp, pairs_y, "YFP")
+    #graph_distance_between_centroids(centroids_gfp, positions_gfp, labels_gfp, pairs_g, "GFP")
+    #graph_distance_between_centroids(centroids_rfp, positions_rfp, labels_rfp, pairs_r, "RFP")
+    #graph_distance_between_centroids(centroids_yfp, positions_yfp, labels_yfp, pairs_y, "YFP")
 
     # Convert Dictionary to array
-    centroids_array_grp = np.array(list(centroids_gfp.values()))
+    centroids_array_gfp = np.array(list(centroids_gfp.values()))
     centroids_array_rfp = np.array(list(centroids_rfp.values()))
     centroids_array_yfp = np.array(list(centroids_yfp.values()))
 
+
+    obtain_score(centroids_array_gfp,positions_gfp )
+    obtain_score(centroids_array_rfp,positions_rfp )
+    obtain_score(centroids_array_yfp,positions_yfp )
+
+
     # all points with voronoi
-    voronoi(
-        [centroids_array_grp, centroids_array_rfp, centroids_array_yfp], 
-        [positions_gfp, positions_rfp, positions_yfp], 
-        path+f"voronoi_all.png", 
-        ["green", "red", "darkorange"],
-        ["Bacteria GFP", "Bacteria RFP", "Bacteria YFP"]
-    )
+    # voronoi(
+    #     [centroids_array_gfp, centroids_array_rfp, centroids_array_yfp], 
+    #     [positions_gfp, positions_rfp, positions_yfp], 
+    #     path+f"voronoi_all.png", 
+    #     ["green", "red", "darkorange"],
+    #     ["Bacteria GFP", "Bacteria RFP", "Bacteria YFP"]
+    # )
     
 
 if __name__ == "__main__":

@@ -402,7 +402,7 @@ action({ "deadYellow"}, "lose_plasmid", { "pColorYellow"} );
 action({ },"set_growth_rate",{ "0.000"});
 
 route1:= "\";
-filename1:= "Conteos.csv";
+filename1:= "records_voronoi.csv";
 fp1:= fopen(route1<> filename1, "w");
 
 
@@ -413,16 +413,14 @@ program p() :=
 
 
 program main() :=  {
-	c_ecolis(1, 0, 0, 80, { "pEmisorGreen"}, program p());
-	c_ecolis(1, 0, 0, 80, { "pEmisorRed"}, program p());
+	c_ecolis(1, 50, -30, 0, { "pEmisorGreen"}, program p());
+	c_ecolis(1, 55, -30, 0, { "pEmisorRed"}, program p());
 	c_ecolis(1000, 0, 0, 80, { "pRepLiderRed","pRepLiderGreen","pRepLiderYellow" ,"pLiders","pBand", "pDeads","pColors","pColorYellow","pColorGreen","pColorRed"}, program p());
-	t := 0;
-	//funciona entrega el valor de color RFP :o
-
+	t:= 0;
+	
 	true : { t := t + dt }
 	t > 300 : {
 		dump(fp1);
 	}
-
 
 };
