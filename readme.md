@@ -64,15 +64,20 @@ Typical uses:
 Dependencies:
 - `permetrics` (recommended) or `scikit-learn` (for fallback metrics)
 
-Run example (PowerShell):
+
+## Run example (PowerShell)
 
 ```powershell
 # Run gro simulation
-1- Open file with gro UI
-2- Click on play button
-3- The result should be in a csv file called "records_voronoi.csv"
+1- Open the file using the gro UI
+2- Click the Play button
+3- The results will be saved to a CSV file named "records_voronoi.csv" in your PC root directory ("\\records_voronoi.csv").
+   You can change this configuration in `colony.gro`.
 
-# Generate diagram of voronoi to compare the result from gro simulation
-1. python data_analysis.py
-```
+route1 := "\\";
+filename1 := "records_voronoi.csv";
+fp1 := fopen(route1 <> filename1, "w");
 
+
+# Generate Voronoi diagram to compare with gro simulation results
+1- python data_analysis.py
