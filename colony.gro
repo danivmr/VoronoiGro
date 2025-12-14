@@ -460,7 +460,7 @@ program p() :=
 
 program main() :=  {
     c_ecolis(1, 50, -30, 0, {"pEmisorGreen"}, program p());
-    c_ecolis(1, 55, -30, 0, {"pEmisorRed"}, program p());
+    c_ecolis(1, 50, -30, 0, {"pEmisorRed"}, program p());
     c_ecolis(1000, 0, 0, 80, {"pRepLiderRed", "pRepLiderGreen", "pRepLiderYellow", "pLiders", "pBand", "pDeads", "pColors", "pColorYellow", "pColorGreen", "pColorRed"}, program p());
     t := 0;
 

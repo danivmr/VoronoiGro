@@ -11,9 +11,10 @@ Small toolkit to analyze simulated bacterial colonies with clustering and Vorono
 - `colony.gro` — gro simulation file (static scenario)
 - `colony_with_growing.gro` — gro simulation file (growing scenario)
 - `data_analysis.py` — main Python analysis routines (clustering, centroid extraction, Voronoi, plotting)
-- `test.py` — clustering metric utility
+- `clustering_metric.py` — clustering metric utility
 - `data/records_voronoi.csv` — example/input CSV used by the analyzer
 - `results/` — output images and centroid text files produced by the analyzer
+- `verilog.v` – Verilog code of the simplified circuit without Cas9 logic, used to test orthogonalization between components
 
 ## Expected CSV schema
 The analyzer expects a CSV with one row per cell containing (typical gro export):
@@ -30,12 +31,8 @@ Install dependencies (Windows PowerShell example):
 
 ```powershell
 python -m venv .venv; .\.venv\Scripts\Activate.ps1
-pip install --upgrade pip
-pip install numpy scipy scikit-learn matplotlib shapely pandas
-# optional: pip install permetrics
+pip install -r requirements.txt
 ```
-
-If you prefer a requirements file, ask and one will be added.
 
 ## Usage
 1. Place your simulation/export CSV into `data/` (named `Conteos.csv` or modify `data_analysis.py` to point to your file).
@@ -55,11 +52,10 @@ The script will perform clustering (DBSCAN by default), compute centroids per cl
 Typical outputs written to `results/`:
 - centroid lists: `centroids_GFP.txt`, `centroids_RFP.txt`, `centroids_YFP.txt` (one file per channel if used)
 - plots: `GFP_in_micrometers.png`, `RFP_in_micrometers.png`, `YFP_in_micrometers.png`, `voronoi_all.png`
-- other diagnostic images (e.g., `Capture.PNG`)
 
-## `test.py` — clustering metric utility
+## `clustering_metric.py` — clustering metric utility
 
-`test.py` is a small utility included to compute clustering quality metrics for a set of data / clustering labels. It uses the `permetrics` package (or scikit-learn metrics when `permetrics` is not available) to compute standard clustering comparisons and prints the results to the console.
+`clustering_metric.py` is a small utility included to compute clustering quality metrics for a set of data / clustering labels. It uses the `permetrics` package (or scikit-learn metrics when `permetrics` is not available) to compute standard clustering comparisons and prints the results to the console.
 
 Typical uses:
 - Validate clustering parameters (e.g. DBSCAN `eps` / `min_samples`) on `data/Conteos.csv` or on synthetic/test data.
@@ -80,5 +76,3 @@ Run example (PowerShell):
 1. python data_analysis.py
 ```
 
-## License & contact
-This repository currently has no license file. 
