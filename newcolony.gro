@@ -1,0 +1,92 @@
+include gro
+
+set("dt", 0.1);
+set("population_max", 400000);
+set("signals", 1.0);
+set("signals_draw", 1.0);
+grid("continuous", "gro_original", 10, 10, 8);
+
+s3 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+s4 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+
+/* ================= GENES ================= */
+
+/* REQUIRED EMITTER */
+genes([
+    name := "EmisorGreen",
+    proteins := {"liderSignalGreen"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {0.1}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "LacMGreen",
+    proteins := {"lacMGreen"},
+    promoter := [function := "YES", transcription_factors := {"liderSignalGreenHigh"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "CIGreen",
+    proteins := {"cIGreen"},
+    promoter := [function := "YES", transcription_factors := {"liderSignalGreenLow"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "LacGreen",
+    proteins := {"lacGreen"},
+    promoter := [function := "NOT", transcription_factors := {"cIGreen"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "BandGreen",
+    proteins := {"bandGreen"},
+    promoter := [function := "AND", transcription_factors := {"-lacMGreen", "-lacGreen"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "HighGreen",
+    proteins := {"highGreen"},
+    promoter := [function := "AND", transcription_factors := {"lacMGreen", "cIGreen"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+/* ================= PLASMIDS ================= */
+
+plasmids_genes([
+    pEmisorGreen := {"EmisorGreen"},
+    pBand := {"LacMGreen", "CIGreen", "LacGreen", "BandGreen", "HighGreen"}
+]);
+
+/* ================= ACTIONS ================= */
+
+action({"bandGreen"}, "d_paint", {"1", "0", "0", "0"});
+action({"-bandGreen"}, "d_paint", {"-1", "0", "0", "0"});
+action({"highGreen"}, "d_paint", {"0", "1", "0", "0"});
+action({"-highGreen"}, "d_paint", {"0", "-1", "0", "0"});
+
+action({"liderSignalGreen"}, "s_emit_signal", {tostring(s4), "0.05", "exact"});
+
+action({}, "s_get_QS", {tostring(s4), ">", "0.01", "liderSignalGreenLow"});
+action({}, "s_get_QS", {tostring(s4), ">", "0.1", "liderSignalGreenHigh"});
+
+action({}, "set_growth_rate", {"0.000"});
+
+/* ================= PROGRAM ================= */
+
+program p() := { skip(); };
+
+program main() := {
+    c_ecolis(1, 0, 0, 20, {"pEmisorGreen"}, program p());
+    c_ecolis(1000, 0, 0, 80, {"pBand"}, program p());
+    t := 0;
+    true : { t := t + dt }
+};
