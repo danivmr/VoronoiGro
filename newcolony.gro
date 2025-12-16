@@ -19,12 +19,12 @@ s5 := s_signal([kdiff := 0.1, kdeg := 0.05]);
 
 s6 := s_signal([kdiff := 0.1, kdeg := 0.05]);
 
-
+// Call leader
 genes([
     name := "CallYellow",
     proteins := {"yellowSignal"},
     promoter := [function := "AND", transcription_factors := {"bandRed", "bandGreen"}],
-    prot_act_times := [times := {15.0}, variabilities := {0.0}],
+    prot_act_times := [times := {30.0}, variabilities := {0.0}],
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
@@ -32,7 +32,7 @@ genes([
     name := "CallGreen",
     proteins := {"greenSignal"},
     promoter := [function := "AND", transcription_factors := {"bandRed", "bandYellow"}],
-    prot_act_times := [times := {15.0}, variabilities := {0.0}],
+    prot_act_times := [times := {30.0}, variabilities := {0.0}],
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
@@ -40,7 +40,7 @@ genes([
     name := "CallRed",
     proteins := {"redSignal"},
     promoter := [function := "AND", transcription_factors := {"bandYellow", "bandGreen"}],
-    prot_act_times := [times := {15.0}, variabilities := {0.0}],
+    prot_act_times := [times := {30.0}, variabilities := {0.0}],
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
@@ -76,21 +76,8 @@ genes([
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
-genes([
-    name := "SelectLiderRed",
-    proteins := {"retardLiderRed"},
-    promoter := [function := "AND", transcription_factors := {"selectLiderRed", "-restrictSignalRed","-liderSignalRedLow","-liderSignalGreenLow","-liderSignalYellowLow"}],
-    prot_act_times := [times := {50.0}, variabilities := {15.0}],
-    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
-]);
 
-genes([
-    name := "RetardSelectLiderRed",
-    proteins := {"activateLiderRed", "liderSignalRed"},
-    promoter := [function := "AND", transcription_factors := {"retardLiderRed", "-restrictSignalRed"}],
-    prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
-    prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
-]);
+
 
 genes([
     name := "Iniciator",
@@ -116,13 +103,7 @@ genes([
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
-genes([
-    name := "DeadRed",
-    proteins := {"deadRed"},
-    promoter := [function := "YES", transcription_factors := {"lacMRed"}],
-    prot_act_times := [times := {1.0}, variabilities := {0.0}],
-    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
-]);
+
 
 genes([
     name := "LacMRed",
@@ -165,6 +146,14 @@ genes([
 ]);
 
 genes([
+    name := "EmisorYellow",
+    proteins := {"liderSignalYellow"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {0.1}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
     name := "NGFP",
     proteins := {"nGFP"},
     promoter := [function := "YES", transcription_factors := {}],
@@ -188,22 +177,32 @@ genes([
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
+//Select Leader
 genes([
     name := "SelectLiderGreen",
-    proteins := {"retardLiderGreen"},
-    promoter := [function := "AND", transcription_factors := {"selectLiderGreen", "-restrictSignalGreen","-liderSignalRedLow","-liderSignalGreenLow","-liderSignalYellowLow"}],
-    prot_act_times := [times := {5.0}, variabilities := {70.0}],
-    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
-]);
-
-
-genes([
-    name := "RetardSelectLiderGreen",
     proteins := {"activateLiderGreen", "liderSignalGreen"},
-    promoter := [function := "AND", transcription_factors := {"retardLiderGreen", "-restrictSignalGreen"}],
+    promoter := [function := "AND", transcription_factors := {"selectLiderGreen", "-restrictSignalGreen","-bandYellow","-bandRed"}],
     prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
     prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
 ]);
+
+genes([
+    name := "SelectLiderRed",
+    proteins := {"activateLiderRed", "liderSignalRed"},
+    promoter := [function := "AND", transcription_factors := {"selectLiderRed", "-restrictSignalRed","-bandYellow","-bandGreen"}],
+    prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
+    prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
+]);
+
+genes([
+    name := "SelectLiderYellow",
+    proteins := {"activateLiderYellow", "liderSignalYellow"},
+    promoter := [function := "AND", transcription_factors := {"selectLiderYellow", "-restrictSignalYellow","-bandGreen","-bandRed"}],
+    prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
+    prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
+]);
+
+
 
 genes([
     name := "RepLiderGreen",
@@ -221,13 +220,7 @@ genes([
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
-genes([
-    name := "DeadGreen",
-    proteins := {"deadGreen"},
-    promoter := [function := "YES", transcription_factors := {"lacMGreen"}],
-    prot_act_times := [times := {1.0}, variabilities := {0.0}],
-    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
-]);
+
 
 genes([
     name := "LacMGreen",
@@ -258,13 +251,6 @@ genes([
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
-genes([
-    name := "EmisorYellow",
-    proteins := {"LiderSignalYellow"},
-    promoter := [function := "YES", transcription_factors := {}],
-    prot_act_times := [times := {1.0}, variabilities := {0.0}],
-    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
-]);
 
 genes([
     name := "NYFP",
@@ -290,22 +276,8 @@ genes([
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
 
-genes([
-    name := "SelectLiderYellow",
-    proteins := {"retardLiderYellow"},
-    promoter := [function := "AND", transcription_factors := {"selectLiderYellow", "-restrictSignalYellow","-liderSignalRedLow","-liderSignalGreenLow","-liderSignalYellowLow"}],
-    prot_act_times := [times := {5.0}, variabilities := {70.0}],
-    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
-]);
 
 
-genes([
-    name := "RetardSelectLiderYellow",
-    proteins := {"activateLiderYellow", "liderSignalYellow"},
-    promoter := [function := "AND", transcription_factors := {"retardLiderYellow", "-restrictSignalYellow"}],
-    prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
-    prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
-]);
 
 genes([
     name := "RepLiderYellow",
@@ -327,7 +299,23 @@ genes([
 genes([
     name := "DeadYellow",
     proteins := {"deadYellow"},
-    promoter := [function := "YES", transcription_factors := {"lacMYellow"}],
+    promoter := [function := "AND", transcription_factors := {"lacMYellow","-bandYellow"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "DeadRed",
+    proteins := {"deadRed"},
+    promoter := [function := "AND", transcription_factors := {"lacMRed","-bandRed"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "DeadGreen",
+    proteins := {"deadGreen"},
+    promoter := [function := "AND", transcription_factors := {"lacMGreen","-bandGreen"}],
     prot_act_times := [times := {1.0}, variabilities := {0.0}],
     prot_deg_times := [times := {0.1}, variabilities := {0.0}]
 ]);
@@ -387,46 +375,47 @@ plasmids_genes([
     }
 ]);
 
-//action({"bandGreen"}, "d_paint", {"0", "0", "0", "1"});
-//action({"-bandGreen"}, "d_paint", {"0", "0", "0", "-1"});
+
+action({"colorRFP"}, "d_paint", {"0", "1", "0", "0"});
+action({"-colorRFP"}, "d_paint", {"0", "-1", "0", "0"});
+
+action({"colorGFP"}, "d_paint", {"1", "0", "0", "0"});
+action({"-colorGFP"}, "d_paint", {"-1", "0", "0", "0"});
+
+//action({"yellowSignal"}, "d_paint", {"0", "0", "1", "0"});
+//action({"-yellowSignal"}, "d_paint", {"0", "0", "-1", "0"});
 
 
-action({"lacMRed"}, "d_paint", {"0", "1", "0", "0"});
-action({"-lacMRed"}, "d_paint", {"0", "-1", "0", "0"});
+action({"colorYFP"}, "d_paint", {"0", "0", "1", "0"});
+action({"-colorYFP"}, "d_paint", {"0", "0", "-1", "0"});
 
-action({"lacMGreen"}, "d_paint", {"1", "0", "0", "0"});
-action({"-lacMGreen"}, "d_paint", {"-1", "0", "0", "0"});
-
-action({"lacMYellow"}, "d_paint", {"0", "0", "1", "0"});
-action({"-lacMYellow"}, "d_paint", {"0", "0", "-1", "0"});
-
-action({"redSignal"}, "s_emit_signal", {tostring(s1), "0.01", "exact"});
+action({"redSignal"}, "s_emit_signal", {tostring(s1), "0.5", "exact"});
 
 action({"liderSignalRed"}, "s_emit_signal", {tostring(s2), "0.05", "exact"});
 
-action({"greenSignal"}, "s_emit_signal", {tostring(s3), "0.01", "exact"});
+action({"greenSignal"}, "s_emit_signal", {tostring(s3), "0.5", "exact"});
 
 action({"liderSignalGreen"}, "s_emit_signal", {tostring(s4), "0.05", "exact"});
 
-action({"yellowSignal"}, "s_emit_signal", {tostring(s5), "0.01", "exact"});
+action({"yellowSignal"}, "s_emit_signal", {tostring(s5), "0.5", "exact"});
 
 action({"liderSignalYellow"}, "s_emit_signal", {tostring(s6), "0.05", "exact"});
 
 
-action({}, "s_get_QS", {tostring(s1), ">", "0.001", "selectLiderRed"});
+action({}, "s_get_QS", {tostring(s1), ">", "0.1", "selectLiderRed"});
 action({}, "s_get_QS", {tostring(s2), ">", "0.005", "liderSignalRedLow"});
 action({}, "s_get_QS", {tostring(s2), ">", "0.05", "liderSignalRedHigh"});
-action({}, "s_get_QS", {tostring(s2), ">", "0.00005", "restrictSignalRed"});
+action({}, "s_get_QS", {tostring(s2), ">", "0.0001", "restrictSignalRed"});
 
-action({}, "s_get_QS", {tostring(s3), ">", "0.001", "selectLiderGreen"});
+action({}, "s_get_QS", {tostring(s3), ">", "0.1", "selectLiderGreen"});
 action({}, "s_get_QS", {tostring(s4), ">", "0.005", "liderSignalGreenLow"});
 action({}, "s_get_QS", {tostring(s4), ">", "0.05", "liderSignalGreenHigh"});
-action({}, "s_get_QS", {tostring(s4), ">", "0.00005", "restrictSignalGreen"});
+action({}, "s_get_QS", {tostring(s4), ">", "0.0001", "restrictSignalGreen"});
 
-action({}, "s_get_QS", {tostring(s5), ">", "0.001", "selectLiderYellow"});
+action({}, "s_get_QS", {tostring(s5), ">", "0.1", "selectLiderYellow"});
 action({}, "s_get_QS", {tostring(s6), ">", "0.005", "liderSignalYellowLow"});
 action({}, "s_get_QS", {tostring(s6), ">", "0.05", "liderSignalYellowHigh"});
-action({}, "s_get_QS", {tostring(s6), ">", "0.00005", "restrictSignalYellow"});
+action({}, "s_get_QS", {tostring(s6), ">", "0.0001", "restrictSignalYellow"});
 
 action({"activateLiderRed"}, "lose_plasmid", {"pRepLiderRed"});
 action({"activateLiderRed"}, "lose_plasmid", {"pDeads"});
@@ -462,7 +451,6 @@ program main() :=  {
     c_ecolis(1, 50, -30, 0, {"pEmisorRed"}, program p());
     c_ecolis(1000, 0, 0, 80, {"pRepLiderRed", "pRepLiderGreen", "pRepLiderYellow", "pLiders", "pBand", "pDeads", "pColors", "pColorYellow", "pColorGreen", "pColorRed"}, program p());
     t := 0;
-
     true : { t := t + dt }
 
 };
