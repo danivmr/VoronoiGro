@@ -226,9 +226,9 @@ def main():
         print("Number of time periods", len(bacterias_time))
 
     # Select bacteria at a specific time index (e.g., 1500)
-    bacteria_gfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[5]) > 0]
-    bacteria_rfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[6]) > 0]
-    bacteria_yfp = [bacterium for bacterium in bacterias_time[1500] if int(bacterium[7]) > 0]
+    bacteria_gfp = [bacterium for bacterium in bacterias_time[35] if int(bacterium[5]) > 0]
+    bacteria_rfp = [bacterium for bacterium in bacterias_time[35] if int(bacterium[6]) > 0]
+    bacteria_yfp = [bacterium for bacterium in bacterias_time[35] if int(bacterium[7]) > 0]
 
     # Perform clustering
     centroids_gfp, positions_gfp, labels_gfp = clustering(bacteria_gfp)

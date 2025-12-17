@@ -2,6 +2,9 @@
 
 Small toolkit to analyze simulated bacterial colonies with clustering and Voronoi-based scoring/visualization. The repository contains gro simulation configurations and a Python analyzer that reads simulation outputs, computes clusters and centroids, builds Voronoi diagrams, and exports visual results.
 
+![Demo animation](docs/demo.gif)
+
+
 ## Quick overview
 - Project: VoronoiGro
 - Purpose: cluster cells from gro simulation outputs, compute centroids per cluster and region scores using Voronoi tessellations, and plot results.

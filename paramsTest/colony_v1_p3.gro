@@ -1,0 +1,489 @@
+include gro
+
+set("dt", 0.6);
+set("population_max", 400000);
+set("signals", 1.0);
+set("signals_draw", 1.0);
+grid("continuous", "gro_original", 10, 10, 8);
+
+
+s1 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+
+s2 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+
+s3 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+
+s4 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+
+s5 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+
+s6 := s_signal([kdiff := 0.1, kdeg := 0.05]);
+
+
+// ==================================================
+// CALL GENES
+// ==================================================
+
+genes([
+    name := "CallY",
+    proteins := {"yellowSignal"},
+    promoter := [function := "AND", transcription_factors := {"bandR", "bandG"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "CallG",
+    proteins := {"greenSignal"},
+    promoter := [function := "AND", transcription_factors := {"bandR", "bandY"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "CallR",
+    proteins := {"redSignal"},
+    promoter := [function := "AND", transcription_factors := {"bandY", "bandG"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// EMISOR GENES
+// ==================================================
+
+genes([
+    name := "EmisorR",
+    proteins := {"leaderSignalR"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {30.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "EmisorG",
+    proteins := {"leaderSignalG"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {30.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "EmisorY",
+    proteins := {"leaderSignalY"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {30.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// LEADER REPRESSION CORE
+// ==================================================
+
+genes([
+    name := "RepLeaderR",
+    proteins := {"repLeaderR"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "RepLeaderG",
+    proteins := {"repLeaderG"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "RepLeaderY",
+    proteins := {"repLeaderY"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// LEADER SIGNALS
+// ==================================================
+
+genes([
+    name := "LeaderSignalR",
+    proteins := {"leaderSignalR"},
+    promoter := [function := "NOT", transcription_factors := {"repLeaderR"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "LeaderSignalG",
+    proteins := {"leaderSignalG"},
+    promoter := [function := "NOT", transcription_factors := {"repLeaderG"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "LeaderSignalY",
+    proteins := {"leaderSignalY"},
+    promoter := [function := "NOT", transcription_factors := {"repLeaderY"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// LEADER SELECTION
+// ==================================================
+
+genes([
+    name := "SelectLeaderR",
+    proteins := {"activateLeaderR", "leaderSignalR"},
+    promoter := [function := "AND", transcription_factors := {"selectLeaderR", "-restrictSignalR","-bandY","-bandG"}],
+    prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
+    prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
+]);
+
+genes([
+    name := "SelectLeaderG",
+    proteins := {"activateLeaderG", "leaderSignalG"},
+    promoter := [function := "AND", transcription_factors := {"selectLeaderG", "-restrictSignalG","-bandY","-bandR"}],
+    prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
+    prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
+]);
+
+genes([
+    name := "SelectLeaderY",
+    proteins := {"activateLeaderY", "leaderSignalY"},
+    promoter := [function := "AND", transcription_factors := {"selectLeaderY", "-restrictSignalY","-bandG","-bandR"}],
+    prot_act_times := [times := {1.0, 1.0}, variabilities := {0.0, 0.0}],
+    prot_deg_times := [times := {0.1, 0.1}, variabilities := {0.0, 0.0}]
+]);
+
+// ==================================================
+// LAC / CI REGULATION (RED)
+// ==================================================
+
+genes([
+    name := "LacMR",
+    proteins := {"lacMR"},
+    promoter := [function := "YES", transcription_factors := {"leaderSignalRHigh"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "CIR",
+    proteins := {"cIR"},
+    promoter := [function := "YES", transcription_factors := {"leaderSignalRLow"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "LacR",
+    proteins := {"lacR"},
+    promoter := [function := "NOT", transcription_factors := {"cIR"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// LAC / CI REGULATION (GREEN)
+// ==================================================
+
+genes([
+    name := "LacMG",
+    proteins := {"lacMG"},
+    promoter := [function := "YES", transcription_factors := {"leaderSignalGHigh"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "CIG",
+    proteins := {"cIG"},
+    promoter := [function := "YES", transcription_factors := {"leaderSignalGLow"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "LacG",
+    proteins := {"lacG"},
+    promoter := [function := "NOT", transcription_factors := {"cIG"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// LAC / CI REGULATION (YELLOW)
+// ==================================================
+
+genes([
+    name := "LacMY",
+    proteins := {"lacMY"},
+    promoter := [function := "YES", transcription_factors := {"leaderSignalYHigh"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "CIY",
+    proteins := {"cIY"},
+    promoter := [function := "YES", transcription_factors := {"leaderSignalYLow"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "LacY",
+    proteins := {"lacY"},
+    promoter := [function := "NOT", transcription_factors := {"cIY"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// BAND GENES
+// ==================================================
+
+genes([
+    name := "BandR",
+    proteins := {"bandR"},
+    promoter := [function := "AND", transcription_factors := {"-lacMR", "-lacR"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "BandG",
+    proteins := {"bandG"},
+    promoter := [function := "AND", transcription_factors := {"-lacMG", "-lacG"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "BandY",
+    proteins := {"bandY"},
+    promoter := [function := "AND", transcription_factors := {"-lacMY", "-lacY"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// DEATH MODULES
+// ==================================================
+
+genes([
+    name := "DeadR",
+    proteins := {"deadR"},
+    promoter := [function := "AND", transcription_factors := {"lacMR","-bandR"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "DeadG",
+    proteins := {"deadG"},
+    promoter := [function := "AND", transcription_factors := {"lacMG","-bandG"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "DeadY",
+    proteins := {"deadY"},
+    promoter := [function := "AND", transcription_factors := {"lacMY","-bandY"}],
+    prot_act_times := [times := {1.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ==================================================
+// REPORTERS
+// ==================================================
+// ---------- Color Repressors ----------
+genes([
+    name := "NR",
+    proteins := {"nR"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {0.1}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "NG",
+    proteins := {"nG"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {0.1}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "NY",
+    proteins := {"nY"},
+    promoter := [function := "YES", transcription_factors := {}],
+    prot_act_times := [times := {0.1}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ---------- RECEIVER NODES ----------
+
+genes([
+    name := "RecNodeR",
+    proteins := {"recNodeR"},
+    promoter := [function := "AND", transcription_factors := {"leaderSignalRHigh", "-nR"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "RecNodeG",
+    proteins := {"recNodeG"},
+    promoter := [function := "AND", transcription_factors := {"leaderSignalGHigh", "-nG"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "RecNodeY",
+    proteins := {"recNodeY"},
+    promoter := [function := "AND", transcription_factors := {"leaderSignalYHigh", "-nY"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+// ---------- COLOR OUTPUTS ----------
+
+genes([
+    name := "ColorR",
+    proteins := {"colorR"},
+    promoter := [function := "YES", transcription_factors := {"recNodeR"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "ColorG",
+    proteins := {"colorG"},
+    promoter := [function := "YES", transcription_factors := {"recNodeG"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+genes([
+    name := "ColorY",
+    proteins := {"colorY"},
+    promoter := [function := "YES", transcription_factors := {"recNodeY"}],
+    prot_act_times := [times := {3.0}, variabilities := {0.0}],
+    prot_deg_times := [times := {0.1}, variabilities := {0.0}]
+]);
+
+
+
+
+plasmids_genes([
+    pEmisorR := {"EmisorR"},
+    pRepLeaderR := {"RepLeaderR"},
+    pEmisorG := {"EmisorG"},
+    pRepLeaderG := {"RepLeaderG"},
+    pEmisorY := {"EmisorY"},
+    pRepLeaderY := {"RepLeaderY"},
+    pDeads := {"DeadY", "DeadG", "DeadR"},
+    pLeaders := {"SelectLeaderR", "LeaderSignalR", "SelectLeaderG", "LeaderSignalG", "SelectLeaderY", "LeaderSignalY"},
+    pColorG := {"NG"},
+    pColorR := {"NR"},
+    pColorY := {"NY"},
+    pColors := {"ColorY", "ColorG", "ColorR", "RecNodeY", "RecNodeR", "RecNodeG"},
+    pBand := {
+        "CallR", "CallG", "CallY",
+        "LacMR", "CIR", "LacR", "BandR",
+        "LacMG", "CIG", "LacG", "BandG",
+        "LacMY", "CIY", "LacY", "BandY",
+    }
+]);
+
+action({"colorR"}, "d_paint", {"0", "1", "0", "0"});
+action({"-colorR"}, "d_paint", {"0", "-1", "0", "0"});
+
+action({"colorG"}, "d_paint", {"1", "0", "0", "0"});
+action({"-colorG"}, "d_paint", {"-1", "0", "0", "0"});
+
+action({"colorY"}, "d_paint", {"0", "0", "1", "0"});
+action({"-colorY"}, "d_paint", {"0", "0", "-1", "0"});
+
+action({"redSignal"}, "s_emit_signal", {tostring(s1), "0.1", "exact"});
+
+action({"leaderSignalR"}, "s_emit_signal", {tostring(s2), "0.1", "exact"});
+
+action({"greenSignal"}, "s_emit_signal", {tostring(s3), "0.1", "exact"});
+
+action({"leaderSignalG"}, "s_emit_signal", {tostring(s4), "0.1", "exact"});
+
+action({"yellowSignal"}, "s_emit_signal", {tostring(s5), "0.1", "exact"});
+
+action({"leaderSignalY"}, "s_emit_signal", {tostring(s6), "0.1", "exact"});
+
+action({}, "s_get_QS", {tostring(s2), ">", "0.0003", "leaderSignalRLow"});
+action({}, "s_get_QS", {tostring(s2), ">", "0.01", "leaderSignalRHigh"});
+
+action({}, "s_get_QS", {tostring(s4), ">", "0.0003", "leaderSignalGLow"});
+action({}, "s_get_QS", {tostring(s4), ">", "0.01", "leaderSignalGHigh"});
+
+action({}, "s_get_QS", {tostring(s6), ">", "0.0003", "leaderSignalYLow"});
+action({}, "s_get_QS", {tostring(s6), ">", "0.01", "leaderSignalYHigh"});
+
+action({}, "s_get_QS", {tostring(s1), ">", "0.01", "selectLeaderR"});
+action({}, "s_get_QS", {tostring(s2), ">", "0.0001", "restrictSignalR"});
+
+action({}, "s_get_QS", {tostring(s3), ">", "0.01", "selectLeaderG"});
+action({}, "s_get_QS", {tostring(s4), ">", "0.0001", "restrictSignalG"});
+
+action({}, "s_get_QS", {tostring(s5), ">", "0.01", "selectLeaderY"});
+action({}, "s_get_QS", {tostring(s6), ">", "0.0001", "restrictSignalY"});
+
+action({"activateLeaderR"}, "lose_plasmid", {"pRepLeaderR"});
+action({"activateLeaderR"}, "lose_plasmid", {"pDeads"});
+
+action({"deadR"}, "lose_plasmid", {"pLeaders"});
+action({"deadR"}, "lose_plasmid", {"pDeads"});
+action({"deadR"}, "lose_plasmid", {"pColorR"});
+
+action({"activateLeaderG"}, "lose_plasmid", {"pRepLeaderG"});
+action({"activateLeaderG"}, "lose_plasmid", {"pDeads"});
+
+action({"deadG"}, "lose_plasmid", {"pLeaders"});
+action({"deadG"}, "lose_plasmid", {"pDeads"});
+action({"deadG"}, "lose_plasmid", {"pColorG"});
+
+action({"activateLeaderY"}, "lose_plasmid", {"pRepLeaderY"});
+action({"activateLeaderY"}, "lose_plasmid", {"pDeads"});
+
+action({"deadY"}, "lose_plasmid", {"pLeaders"});
+action({"deadY"}, "lose_plasmid", {"pDeads"});
+action({"deadY"}, "lose_plasmid", {"pColorY"});
+
+action({}, "set_growth_rate", {"0.000"});
+
+route1 := "\\";
+filename1 := "records_voronoi.csv";
+fp1 := fopen(route1 <> filename1, "w");
+
+
+program p() :=
+{
+    skip();
+};
+
+
+program main() :=  {
+    c_ecolis(1, 50, -30, 0, {"pEmisorG"}, program p());
+    c_ecolis(1, 50, -30, 0, {"pEmisorR"}, program p());
+    c_ecolis(1000, 0, 0, 80, {"pRepLeaderR", "pRepLeaderG", "pRepLeaderY", "pLeaders", "pBand", "pDeads", "pColors", "pColorY", "pColorG", "pColorR"}, program p());
+    t := 0;
+    true : { t := t + dt }
+        t > 300 : {
+        dump(fp1);
+    }
+};
